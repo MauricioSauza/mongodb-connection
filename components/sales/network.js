@@ -11,16 +11,16 @@ const {
   createSale,
   getSale,
   updateSale,
-  removeSale,
   getSales,
+  deleteSale,
 } = require("./controller");
 
 router.post(
   "/",
   [
-    check("customerName", "toUser is required").not().isEmpty(),
-    check("item", "toUser is required").not().isEmpty(),
-    check("amount", "type is required").not().isEmpty(),
+    check("customerName").not().isEmpty().isString(),
+    check("item").not().isEmpty().isString(),
+    check("amount").not().isEmpty().isNumeric(),
     fieldValidations,
   ],
   _createSale
@@ -35,7 +35,19 @@ router.get(
   _getSale
 );
 
-router.get("/", [fieldValidations], _getSales);
+router.patch(
+  "/:saleid",
+  [
+    param("saleid", "saleid param is required").not().isEmpty(),
+    check("customerName").optional().isString(),
+    check("item").optional().isString(),
+    check("amount").optional().isNumeric(),
+    fieldValidations,
+  ],
+  _updateSale
+);
+
+router.get("/", _getSales);
 
 // NETWORK
 function _createSale(req, res, next) {
@@ -47,6 +59,14 @@ function _createSale(req, res, next) {
     .catch(next);
 }
 
+router.delete(
+  "/:saleid",
+  [
+    param("saleid", "saleid param is required").not().isEmpty(),
+    fieldValidations,
+  ],
+  _deleteSale
+);
 
 function _getSale(req, res, next) {
   const saleid = req.params.saleid;
@@ -57,28 +77,30 @@ function _getSale(req, res, next) {
     .catch(next);
 }
 
-function _getSales(req, res, next) {
-  getSales(saleid)
+function _updateSale(req, res, next) {
+  const saleid = req.params.saleid;
+  const { customerName, item, amount } = req.body;
+  updateSale(saleid, { customerName, item, amount })
     .then((data) => {
       response.success(req, res, data, 200);
     })
     .catch(next);
 }
 
+function _getSales(req, res, next) {
+  getSales()
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
+
+function _deleteSale(req, res, next) {
+  const saleid = req.params.saleid;
+  deleteSale(saleid)
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 module.exports = router;
-
-// router.get(
-//   "/conversation/:cid/members",
-//   [param("cid", "cid is required").not().isEmpty(), fieldValidations],
-//   _getMembersFromConversation
-// );
-
-// function _getMembersFromConversation(req, res, next) {
-//   const { uid } = req.body;
-//   const cid = req.params.cid;
-//   getMembersFromConversation(cid, uid)
-//     .then((data) => {
-//       response.success(req, res, data, 200);
-//     })
-//     .catch(next);
-// }

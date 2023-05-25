@@ -8,6 +8,7 @@ const dbConnection = async(db_cnn) => {
             useUnifiedTopology: true,
             // useCreateIndex: true
         });
+        console.log("connectado");
 
     } catch (error) {
         console.log(error);
