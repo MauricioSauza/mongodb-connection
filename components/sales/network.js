@@ -15,6 +15,8 @@ const {
   deleteSale,
 } = require("./controller");
 
+const {summarizedByItems, summarizedByCustomers} = require("./service");
+
 router.post(
   "/",
   [
@@ -49,15 +51,8 @@ router.patch(
 
 router.get("/", _getSales);
 
-// NETWORK
-function _createSale(req, res, next) {
-  const { customerName, item, amount } = req.body;
-  createSale(customerName, item, amount)
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
+router.get("/summarized/items", _summarizedByItems);
+router.get("/summarized/customers", _summarizedByCustomers);
 
 router.delete(
   "/:saleid",
@@ -68,7 +63,20 @@ router.delete(
   _deleteSale
 );
 
+
+
+// NETWORK
+function _createSale(req, res, next) {
+  const { customerName, item, amount } = req.body;
+  createSale(customerName, item, amount)
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
+
 function _getSale(req, res, next) {
+  console.log("getSale");
   const saleid = req.params.saleid;
   getSale(saleid)
     .then((data) => {
@@ -103,4 +111,22 @@ function _deleteSale(req, res, next) {
     })
     .catch(next);
 }
+
+// Service 
+function _summarizedByItems(req, res, next) {
+  summarizedByItems()
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
+
+function _summarizedByCustomers(req, res, next) {
+  summarizedByCustomers()
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
+
 module.exports = router;
