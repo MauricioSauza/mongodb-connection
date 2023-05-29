@@ -32,7 +32,7 @@ class RedisCache {
 
     const serializedValue = JSON.stringify(value);
     try {
-      await this.redisClient.set(key, serializedValue, { EX: 100 });
+      await this.redisClient.set(key, serializedValue, { EX: seconds });
     } catch (error) {
       console.error("Error al guardar el valor en Redis:", err);
     }

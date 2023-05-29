@@ -106,7 +106,7 @@ const summarizedByCustomers = async () => {
         },
       },
     ]);
-    await redisClient.setex("summarizedByCustomers", 2, sales);
+    await redisClient.setex("summarizedByCustomers", 10, sales);
 
     return sales;
   } catch (error) {
