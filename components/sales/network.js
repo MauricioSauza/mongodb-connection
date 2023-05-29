@@ -2,20 +2,21 @@
 const express = require("express");
 const { query, param, check } = require("express-validator");
 const error = require("../../helpers/network/errors");
-const response = require("../../helpers/network/response");
+
 const router = express.Router();
 
 const { fieldValidations } = require("../../middlewares/field-validations");
+const { cacheMiddleware } = require("../../middlewares/cache/redis-cache");
 
 const {
-  createSale,
-  getSale,
-  updateSale,
-  getSales,
-  deleteSale,
+  _createSale,
+  _getSale,
+  _updateSale,
+  _getSales,
+  _deleteSale,
+  _summarizedByItems,
+  _summarizedByCustomers,
 } = require("./controller");
-
-const {summarizedByItems, summarizedByCustomers} = require("./service");
 
 router.post(
   "/",
@@ -51,8 +52,8 @@ router.patch(
 
 router.get("/", _getSales);
 
-router.get("/summarized/items", _summarizedByItems);
-router.get("/summarized/customers", _summarizedByCustomers);
+router.get("/summarized/items", [cacheMiddleware("summarizedByItems")], _summarizedByItems);
+router.get("/summarized/customers", [cacheMiddleware("summarizedByCustomers")],_summarizedByCustomers);
 
 router.delete(
   "/:saleid",
@@ -62,71 +63,5 @@ router.delete(
   ],
   _deleteSale
 );
-
-
-
-// NETWORK
-function _createSale(req, res, next) {
-  const { customerName, item, amount } = req.body;
-  createSale(customerName, item, amount)
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
-
-function _getSale(req, res, next) {
-  console.log("getSale");
-  const saleid = req.params.saleid;
-  getSale(saleid)
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
-
-function _updateSale(req, res, next) {
-  const saleid = req.params.saleid;
-  const { customerName, item, amount } = req.body;
-  updateSale(saleid, { customerName, item, amount })
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
-
-function _getSales(req, res, next) {
-  getSales()
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
-
-function _deleteSale(req, res, next) {
-  const saleid = req.params.saleid;
-  deleteSale(saleid)
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
-
-// Service 
-function _summarizedByItems(req, res, next) {
-  summarizedByItems()
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
-
-function _summarizedByCustomers(req, res, next) {
-  summarizedByCustomers()
-    .then((data) => {
-      response.success(req, res, data, 200);
-    })
-    .catch(next);
-}
 
 module.exports = router;

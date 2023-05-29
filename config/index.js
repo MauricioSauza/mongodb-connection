@@ -5,5 +5,9 @@ exports.config = {
     },
     mongodb: {
         db: process.env.DB_CNN
+    },
+    redis:{
+        host: process.env.REDIS_HOST || 6379,
+        port: process.env.REDIS_PORT || '127.0.0.1'
     }
 }

@@ -1,64 +1,84 @@
-// package
-const { response } = require("express");
+const response = require("../../helpers/network/response");
+const error = require("../../helpers/network/errors");
 
-// models
-const Sale = require("../../models/sale");
+const {
+  createSale,
+  deleteSale,
+  getSale,
+  getSales,
+  summarizedByCustomers,
+  summarizedByItems,
+  updateSale,
+} = require("./service");
 
-// 
-const error = require('../../utils/error');
+function _createSale(req, res, next) {
+  const { customerName, item, amount } = req.body;
+  createSale(customerName, item, amount)
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
-const createSale = async (customerName, item, amount) => {
-  const saleDB = new Sale({ customerName, item, amount });
+function _getSale(req, res, next) {
+  const saleid = req.params.saleid;
+  getSale(saleid)
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
-  await saleDB.save();
+function _updateSale(req, res, next) {
+  const saleid = req.params.saleid;
+  const { customerName, item, amount } = req.body;
+  updateSale(saleid, { customerName, item, amount })
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
-  return saleDB;
-};
+function _getSales(req, res, next) {
+  getSales()
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
-const getSale = async (saleid) => {
-  const saleDB = await Sale.findById(saleid);
-  if (!saleDB) {
-    throw error(`sale id not found`, 401) ;
-    return;
-  }
-  
-  return saleDB;
-};
-const updateSale = async (saleid, data) => {
-  const saleDB = await Sale.findByIdAndUpdate(saleid, data, { new: true });
-  if (!saleDB) {
-    throw error(`sale id not found`, 401) ;
-    return;
-  }
+function _deleteSale(req, res, next) {
+  const saleid = req.params.saleid;
+  deleteSale(saleid)
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
-  return saleDB;
-};
+// Service
+function _summarizedByItems(req, res, next) {
+  summarizedByItems()
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
-const deleteSale = async (saleid) => {
-  const saleDB = await Sale.findByIdAndDelete(saleid);
-
-  if (!saleDB) {
-    throw error(`sale id not found`, 401) ;
-    return;
-  }
-  
-  return true;
-};
-
-const getSales = async () => {
-  const salesDB = await Sale.find();
-  if (!salesDB) {
-    throw error(`sales not found`, 401) ;
-    return;
-  }
-
-  return salesDB;
-};
+function _summarizedByCustomers(req, res, next) {
+  summarizedByCustomers()
+    .then((data) => {
+      response.success(req, res, data, 200);
+    })
+    .catch(next);
+}
 
 module.exports = {
-  createSale,
-  getSale,
-  updateSale,
-  deleteSale,
-  getSales,
+  _createSale,
+  _getSale,
+  _updateSale,
+  _getSales,
+  _deleteSale,
+  _summarizedByItems,
+  _summarizedByCustomers,
 };

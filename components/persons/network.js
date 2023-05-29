@@ -3,6 +3,7 @@ const express = require("express");
 const { query, param, check } = require("express-validator");
 const error = require("../../helpers/network/errors");
 const response = require("../../helpers/network/response");
+const { cacheMiddleware } = require("../../middlewares/cache/redis-cache");
 const router = express.Router();
 
 const { fieldValidations } = require("../../middlewares/field-validations");
@@ -59,7 +60,7 @@ router.get("/", _getPersons);
 
 router.get(
   "/search/person",
-  [query("city").not().isEmpty().isString(), fieldValidations],
+  [query("city").not().isEmpty().isString(), fieldValidations, cacheMiddleware('findPersonByCity')],
   _findPersonByCity
 );
 
